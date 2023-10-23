@@ -9,6 +9,7 @@ from typing import Optional, Union
 
 from rpmautospec_core import specfile_uses_rpmautospec
 
+from mockbuild.exception import ConfigError
 from mockbuild.trace_decorator import getLog, traceLog
 
 requires_api_version = "1.1"
@@ -98,10 +99,13 @@ class RpmautospecPlugin:
         chroot_sources_spec = Path("/") / hosts_chroot_sources_spec.relative_to(chroot_dir)
 
         # Call subprocess to perform the specfile rewrite
-        command = self.get("cmd_base")
-        command += ["--input", chroot_sources_spec]
-        command += ["--output", chroot_spec]
-        command += ["--git-dir", chroot_sources]
+        try:
+            command = self.opts["cmd_base"]
+        except KeyError as err:
+            raise ConfigError("The 'rpmautospec_opts.cmd_base' is unset")
+
+        command += [chroot_sources_spec]  # <input-spec>
+        command += [chroot_spec]  # <output-spec>
 
         self.buildroot.doChroot(
             command,
