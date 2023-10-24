@@ -26,7 +26,20 @@ class RpmautospecPlugin:
     @traceLog()
     def __init__(self, plugins, conf, buildroot):
         self.buildroot = buildroot
+
+        # Verify configuration
+        requires = conf.get("requires")
+        if not isinstance(requires, list) and len(requires):
+            raise ConfigError(
+                "The 'rpmautospec_opts.requires' key must be set to a non-empty list"
+            )
+        cmd_base = conf.get("cmd_base")
+        if not isinstance(cmd_base, list) and len(cmd_base):
+            raise ConfigError(
+                "The 'rpmautospec_opts.cmd_base' key must be set to a non-empty list"
+            )
         self.opts = conf
+
         self.log = getLog()
         plugins.add_hook("pre_srpm_build", self.attempt_process_distgit)
         self.log.info("rpmautospec: initialized")
@@ -99,11 +112,7 @@ class RpmautospecPlugin:
         chroot_sources_spec = Path("/") / hosts_chroot_sources_spec.relative_to(chroot_dir)
 
         # Call subprocess to perform the specfile rewrite
-        try:
-            command = self.opts["cmd_base"]
-        except KeyError as err:
-            raise ConfigError("The 'rpmautospec_opts.cmd_base' is unset")
-
+        command = self.opts["cmd_base"]
         command += [chroot_sources_spec]  # <input-spec>
         command += [chroot_spec]  # <output-spec>
 
