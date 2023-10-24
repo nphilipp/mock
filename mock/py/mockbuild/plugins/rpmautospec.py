@@ -103,13 +103,13 @@ class RpmautospecPlugin:
 
         # Install the `rpmautospec` command line tool into the build root.
         if self.opts.get("requires", None):
-           self.buildroot.pkg_manager.install_as_root(*self.opts["requires"], check=True)
+            self.buildroot.pkg_manager.install_as_root(*self.opts["requires"], check=True)
 
         # Get paths inside the chroot by chopping off the leading paths
         chroot_dir = Path(self.buildroot.make_chroot_path())
-        chroot_spec = Path("/") / hosts_chroot_spec.relative_to(chroot_dir)
-        chroot_sources = Path("/") / hosts_chroot_sources.relative_to(chroot_dir)
-        chroot_sources_spec = Path("/") / hosts_chroot_sources_spec.relative_to(chroot_dir)
+        chroot_spec = Path("/") / host_chroot_spec.relative_to(chroot_dir)
+        chroot_sources = Path("/") / host_chroot_sources.relative_to(chroot_dir)
+        chroot_sources_spec = Path("/") / host_chroot_sources_spec.relative_to(chroot_dir)
 
         # Call subprocess to perform the specfile rewrite
         command = self.opts["cmd_base"]
